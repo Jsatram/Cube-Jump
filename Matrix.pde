@@ -92,7 +92,7 @@ class Matrix{
   void randomize(){
     for(int i = 0; i < rows; i++){
       for(int j = 0; j < cols; j++){
-        data[i][j] = random(-1,1);
+        data[i][j] = random(0,1);
       }
     }
   }

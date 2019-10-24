@@ -5,7 +5,7 @@ class NeuralNetwork{
   int outputL;
   int fit = 0;
   
-  float mutR = 15;
+  float mutR = 100;
   float mutAmount = 5;
   float lr = .5;
   
@@ -65,8 +65,8 @@ class NeuralNetwork{
   
   
   NeuralNetwork crossG(NeuralNetwork a){
-    
-    NeuralNetwork x = new NeuralNetwork(a);
+  
+    NeuralNetwork x = a;
     
  
     for(int i = 0; i < x.hiddenL; i++){
@@ -124,10 +124,10 @@ class NeuralNetwork{
   
   
   NeuralNetwork mut(NeuralNetwork x){
-    
     NeuralNetwork a = x;
-    float factorU = (1+(mutAmount/100));
-    float factorD  =(1-(mutAmount/100));
+    
+    float factorU = random(1,(1+(mutAmount/100)));
+    float factorD  =random((1-(mutAmount/100)),1);
     float choice;
     
     for(int i = 0; i < a.hiddenL; i++){
@@ -136,9 +136,11 @@ class NeuralNetwork{
         if(choice < mutR){
           choice = random(0,100);
           if(choice > 50){
+            factorU = random(1,(1+(mutAmount/100)));
             a.weightsih.data[i][j] = weightsih.data[i][j] * factorU;
           }
           else{
+            factorD  =random((1-(mutAmount/100)),1);
             a.weightsih.data[i][j] = weightsih.data[i][j] * factorD;
           }
 
@@ -155,9 +157,11 @@ class NeuralNetwork{
         if(choice < mutR){
           choice = random(0,100);
           if(choice > 50){
+            factorU = random(1,(1+(mutAmount/100)));
             a.weightsho.data[i][j] = weightsho.data[i][j] * factorU;
           }
           else{
+            factorD  =random((1-(mutAmount/100)),1);
             a.weightsho.data[i][j] = weightsho.data[i][j] * factorD;
           }
         }
@@ -172,9 +176,11 @@ class NeuralNetwork{
         if(choice < mutR){
           choice = random(0,100);
           if(choice > 50){
+            factorU = random(1,(1+(mutAmount/100)));
             a.biash.data[i][0] = biash.data[i][0] *factorU;
           }
           else{
+            factorD  =random((1-(mutAmount/100)),1);
             a.biash.data[i][0] = biash.data[i][0] * factorD;
           }
         } 
@@ -188,9 +194,11 @@ class NeuralNetwork{
         if(choice < mutR){
           choice = random(0,100);
           if(choice > 50){
+            factorU = random(1,(1+(mutAmount/100)));
             a.biaso.data[i][0] = biaso.data[i][0] * factorU;
           }
           else{
+            factorD  =random((1-(mutAmount/100)),1);
             a.biaso.data[i][0] = biaso.data[i][0] * factorD;
           }
         }  

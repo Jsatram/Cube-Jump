@@ -25,22 +25,28 @@ int currFrame = 0;
 float accel = 1;
 
 int pop = 100;
+int randomPop = (pop*9)/10;
+
+float br = 78;
+float bg = 85;
+float bb = 75;
+
 
 void setup(){
   size(1000,600);
-  background(63, 73, 74);
+  background(br, bg, bb);
   frameRate(60);
   
   
   brain = new ArrayList<NeuralNetwork>();
   ai = new ArrayList<Player>();
   
-  brain.add(new NeuralNetwork(29,22,3));
+  brain.add(new NeuralNetwork(64,40,2));
   ai.add(new Player((9*sizeC)/2  ,((2*height)/3)-sizeC,sizeC));
   
   
   for(int i = 1; i < pop; i++){
-    brain.add(new NeuralNetwork(29,22,3));
+    brain.add(new NeuralNetwork(64,40,2));
     ai.add(new Player((9*sizeC)/2 ,((2*height)/3)-sizeC,sizeC));
   }
   
@@ -50,20 +56,23 @@ void setup(){
       map[i] = new Map(int(map[i-1].loc.x + (sizeC)),(2*height)/3,sizeC);
   }  
   
-  fittest = new NeuralNetwork(29,22,3);
-  allTimeFit = new NeuralNetwork(29,22,3);
+  fittest = new NeuralNetwork(64,40,2);
+  allTimeFit = new NeuralNetwork(64,40,2);
 }
 
 void draw(){
-  background(63, 73, 74);
+  background(br, bg, bb);
+    
   for(int i = 0; i < pop; i++){
-    float[] inputs = {ai.get(i).loc.x/width,ai.get(i).loc.y/height,ai.get(i).vel.y,bFloat(onGround(i)),inputCheckX(1)/width,inputCheckY(1)/height, bFloat(map[checkAhead(1)].t),inputCheckX(2)/width,inputCheckY(2)/height,bFloat(map[checkAhead(2)].t),
+    float[] inputs = {ai.get(i).loc.x/width,ai.get(i).loc.y/height,ai.get(i).vel.y,distG(i)/height,inputCheckX(1)/width,inputCheckY(1)/height, bFloat(map[checkAhead(1)].t),inputCheckX(2)/width,inputCheckY(2)/height,bFloat(map[checkAhead(2)].t),
                 inputCheckX(3)/width,inputCheckY(3)/height,bFloat(map[checkAhead(3)].t),inputCheckX(4)/width,inputCheckY(4)/height,bFloat(map[checkAhead(4)].t),inputCheckX(5)/width,inputCheckY(5)/height,bFloat(map[checkAhead(5)].t),
-              inputCheckX(6)/width,inputCheckY(6)/height,bFloat(map[checkAhead(6)].t),inputCheckX(7)/width,inputCheckY(7)/height,bFloat(map[checkAhead(7)].t),inputCheckX(8)/width,inputCheckY(8)/height,bFloat(map[checkAhead(8)].t),(accel-1)/1};
+              inputCheckX(6)/width,inputCheckY(6)/height,bFloat(map[checkAhead(6)].t),inputCheckX(7)/width,inputCheckY(7)/height,bFloat(map[checkAhead(7)].t),inputCheckX(8)/width,inputCheckY(8)/height,bFloat(map[checkAhead(8)].t),
+            inputCheckX(9)/width,inputCheckY(9)/height, bFloat(map[checkAhead(9)].t),inputCheckX(10)/width,inputCheckY(10)/height,bFloat(map[checkAhead(10)].t),inputCheckX(11)/width,inputCheckY(11)/height,bFloat(map[checkAhead(11)].t),
+            inputCheckX(12)/width,inputCheckY(12)/height,bFloat(map[checkAhead(12)].t),inputCheckX(13)/width,inputCheckY(13)/height,bFloat(map[checkAhead(13)].t),inputCheckX(14)/width,inputCheckY(14)/height,bFloat(map[checkAhead(14)].t),
+           inputCheckX(15)/width,inputCheckY(15)/height,bFloat(map[checkAhead(15)].t),inputCheckX(16)/width,inputCheckY(16)/height,bFloat(map[checkAhead(16)].t),inputCheckX(17)/width,inputCheckY(17)/height,bFloat(map[checkAhead(17)].t)
+         ,inputCheckX(18)/width,inputCheckY(18)/height,bFloat(map[checkAhead(18)].t),inputCheckX(19)/width,inputCheckY(19)/height,bFloat(map[checkAhead(19)].t),inputCheckX(20)/width,inputCheckY(20)/height,bFloat(map[checkAhead(20)].t)};
      
-     
-     
-     if(currFrame % 30 == 0 && ai.get(i).dead != true){
+     if((map[checkAhead(0)].loc.y != map[checkAhead(1)].loc.y || map[checkAhead(0)].t == true) && ai.get(i).dead != true){
        brain.get(i).fit++;
      }
      
@@ -74,25 +83,25 @@ void draw(){
     aiMove(inputs,brain.get(i).feedForward(inputs),i);
     checkDead(i);
     update(i);
-    
- 
-    //println(ai.get(i).vel.y);
   }
   //
     
   fittest = getFittest();
   if(allDead()){
-    
     //println(fittest.fit + " " + allTimeFit.fit);
-    
-    if(fittest.fit < allTimeFit.fit){
-      fittest = allTimeFit.crossG(fittest);
+    //newGenRT();
+    if(fittest.fit >= allTimeFit.fit){
+      newGen();
+      println("New From Current Best");
+    }
+   else{
+      //newGen();
+      //println("New From Current Best");
+      newGenA();
+      println("New From All Time Best");
     }
     
-    newGen();
-
   }
-    
   
   //println(ai.get(i).loc);
   for(int a = 0; a < numM; a++){
@@ -100,33 +109,15 @@ void draw(){
   }
   
   
-  map[checkAhead(1)].r = 255;
-  map[checkAhead(2)].r = 255;
-  map[checkAhead(3)].r = 255;
-  map[checkAhead(4)].r = 255;
-  map[checkAhead(5)].r = 255;
-  map[checkAhead(6)].r = 255;
-  map[checkAhead(7)].r = 255;
-  map[checkAhead(8)].r = 255;
+  
+  map[checkAhead(20)].r = 255;
      
   map[checkAhead(0)].r = 50;
   
   
   
   
-  if(currFrame % 400 == 0){
-    if(accel < 2){
-      accel= accel * 1.1;
-    }
-    else{
-      accel= 2;
-    }
-        
-    moveMap(accel);
-  }
-  else{
-    moveMap(accel);
-  }
+  moveMap(accel);
   
   
   textSize(30);
@@ -145,10 +136,16 @@ void draw(){
 }
 
 float[] randomT(){
-  
-  float[] choice = {random(0,1),random(0,1)};
-  
+  float[] choice = {random(0,1),random(0,1),random(0,1)};
   return choice;
+}
+
+float distG(int i){
+  float dist = height;
+  
+  dist = map[checkOn()].loc.y - ai.get(i).loc.y;
+
+  return dist;
 }
 
 float inputCheckX(int ahead){
@@ -191,15 +188,12 @@ float bFloat(boolean x){
 void aiMove(float[] inputs,float[] outputs, int i){
   
   
-  if(outputs[1] < outputs[0] && outputs[2] < outputs[0] && onGround(i) == true){
-    ai.get(i).jump();
-  }
-  else if(outputs[1] > outputs[0] && outputs[1] > outputs[2] && onGround(i) == false){
-    ai.get(i).fall(gravity);
-    //brain.get(i).train(inputs, expected);
+  if(outputs[1] < outputs[0]  && onGround(i) == true){
+    //do nothing
   }
   else{
-    ai.get(i).vel.y = ai.get(i).vel.y;
+    ai.get(i).jump();
+    //brain.get(i).fit -= 5;
   }
     
 }
@@ -213,7 +207,7 @@ int mapPOS(int i){
   float curr = 0;
   float uD = random(100);
   
-  if(map[i-1].loc.y == 220){
+  if(map[i-1].loc.y == 400){
     curr = 1;
   }
   if(map[i-1].loc.y == 400){
@@ -391,7 +385,7 @@ boolean allDead(){
 }
 
 NeuralNetwork getFittest(){
-  NeuralNetwork f = new NeuralNetwork(29,22,3);
+  NeuralNetwork f = new NeuralNetwork(64,40,2);
   
   for(int i = 0; i < pop; i++){
     if(f.fit < brain.get(i).fit){
@@ -411,6 +405,41 @@ NeuralNetwork getFittest(){
   return f;
 }
 
+void newGenA(){
+  fittest.fit = 0;
+  
+  for(int i = pop; i > 0; i--){
+    brain.remove(i-1);
+    ai.remove(i-1);
+  }
+  
+  for(int i = 0; i < numM; i++){
+    map[i].loc.y = (2*height)/3;
+    map[i].tChoice = 100;
+    map[i].t = false;
+  }
+
+  for(int i = 0; i < pop; i++){  
+    
+    if(i == 0){
+      brain.add(new NeuralNetwork(64,40,2));
+      brain.get(0).setTo(allTimeFit);
+      ai.add(new Player((9*sizeC)/2,map[checkOn()].loc.y - sizeC,sizeC));
+    }
+    if(i >=1 ){
+      brain.add(new NeuralNetwork(64,40,2));
+      brain.get(i).setTo(brain.get(0).crossG(brain.get(i)));
+      ai.add(new Player((9*sizeC)/2,map[checkOn()].loc.y - sizeC,sizeC));
+    }   
+    
+    brain.get(i).fit = 0;
+  }
+  
+
+  genCount++;
+}
+
+
 
 void newGen(){
   fittest.fit = 0;
@@ -425,16 +454,23 @@ void newGen(){
     map[i].tChoice = 100;
     map[i].t = false;
   }
-  
-  brain.add(new NeuralNetwork(29,22,3));
-  brain.get(0).setTo(fittest);
-  ai.add(new Player((9*sizeC)/2,map[checkOn()].loc.y - sizeC,sizeC));
+
+  for(int i = 0; i < pop; i++){  
     
-  for(int i = 1; i < pop; i++){  
-    brain.add(new NeuralNetwork(29,22,3));
-    brain.get(i).setTo(fittest.mut(brain.get(i)));
-    ai.add(new Player((9*sizeC)/2,map[checkOn()].loc.y - sizeC,sizeC));
+    if(i == 0){
+      brain.add(new NeuralNetwork(64,40,2));
+      brain.get(0).setTo(fittest);
+      ai.add(new Player((9*sizeC)/2,map[checkOn()].loc.y - sizeC,sizeC));
+    }
+    if(i >=1 ){
+      brain.add(new NeuralNetwork(64,40,2));
+      brain.get(i).setTo(brain.get(0).mut(brain.get(i)));
+      ai.add(new Player((9*sizeC)/2,map[checkOn()].loc.y - sizeC,sizeC));
+    }   
+    
+    brain.get(i).fit = 0;
   }
+  
 
   genCount++;
   //fittest = brain.get(0);
